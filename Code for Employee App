@@ -1,0 +1,307 @@
+import java.io.PrintStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Scanner;
+
+public class EmployeeApp {
+   public EmployeeApp() {
+   }
+
+   public static Connection getConnection() {
+      try {
+         Class.forName("com.mysql.cj.jdbc.Driver");
+         return DriverManager.getConnection("jdbc:mysql://localhost:3306/employee_db", "root", "your_password");
+      } catch (Exception var1) {
+         System.out.println("Connection failed: " + var1.getMessage());
+         return null;
+      }
+   }
+
+   public static void addEmployee(String var0, String var1, double var2) {
+      String var4 = "INSERT INTO employees(name, email, salary) VALUES (?, ?, ?)";
+
+      try {
+         Connection var5 = getConnection();
+
+         try {
+            PreparedStatement var6 = var5.prepareStatement(var4);
+
+            try {
+               var6.setString(1, var0);
+               var6.setString(2, var1);
+               var6.setDouble(3, var2);
+               var6.executeUpdate();
+               System.out.println("✅ Employee added.");
+            } catch (Throwable var11) {
+               if (var6 != null) {
+                  try {
+                     var6.close();
+                  } catch (Throwable var10) {
+                     var11.addSuppressed(var10);
+                  }
+               }
+
+               throw var11;
+            }
+
+            if (var6 != null) {
+               var6.close();
+            }
+         } catch (Throwable var12) {
+            if (var5 != null) {
+               try {
+                  var5.close();
+               } catch (Throwable var9) {
+                  var12.addSuppressed(var9);
+               }
+            }
+
+            throw var12;
+         }
+
+         if (var5 != null) {
+            var5.close();
+         }
+      } catch (SQLException var13) {
+         System.out.println("Error adding employee: " + var13.getMessage());
+      }
+
+   }
+
+   public static void viewEmployees() {
+      String var0 = "SELECT * FROM employees";
+
+      try {
+         Connection var1 = getConnection();
+
+         try {
+            Statement var2 = var1.createStatement();
+
+            try {
+               ResultSet var3 = var2.executeQuery(var0);
+
+               try {
+                  System.out.println("\ud83d\udc65 Employee List:");
+
+                  while(var3.next()) {
+                     PrintStream var10000 = System.out;
+                     int var10001 = var3.getInt("id");
+                     var10000.println("ID: " + var10001 + ", Name: " + var3.getString("name") + ", Email: " + var3.getString("email") + ", Salary: " + var3.getDouble("salary"));
+                  }
+               } catch (Throwable var9) {
+                  if (var3 != null) {
+                     try {
+                        var3.close();
+                     } catch (Throwable var8) {
+                        var9.addSuppressed(var8);
+                     }
+                  }
+
+                  throw var9;
+               }
+
+               if (var3 != null) {
+                  var3.close();
+               }
+            } catch (Throwable var10) {
+               if (var2 != null) {
+                  try {
+                     var2.close();
+                  } catch (Throwable var7) {
+                     var10.addSuppressed(var7);
+                  }
+               }
+
+               throw var10;
+            }
+
+            if (var2 != null) {
+               var2.close();
+            }
+         } catch (Throwable var11) {
+            if (var1 != null) {
+               try {
+                  var1.close();
+               } catch (Throwable var6) {
+                  var11.addSuppressed(var6);
+               }
+            }
+
+            throw var11;
+         }
+
+         if (var1 != null) {
+            var1.close();
+         }
+      } catch (SQLException var12) {
+         System.out.println("Error fetching employees: " + var12.getMessage());
+      }
+
+   }
+
+   public static void updateEmployee(int var0, String var1, String var2, double var3) {
+      String var5 = "UPDATE employees SET name=?, email=?, salary=? WHERE id=?";
+
+      try {
+         Connection var6 = getConnection();
+
+         try {
+            PreparedStatement var7 = var6.prepareStatement(var5);
+
+            try {
+               var7.setString(1, var1);
+               var7.setString(2, var2);
+               var7.setDouble(3, var3);
+               var7.setInt(4, var0);
+               int var8 = var7.executeUpdate();
+               if (var8 > 0) {
+                  System.out.println("✅ Employee updated.");
+               } else {
+                  System.out.println("❌ Employee ID not found.");
+               }
+            } catch (Throwable var12) {
+               if (var7 != null) {
+                  try {
+                     var7.close();
+                  } catch (Throwable var11) {
+                     var12.addSuppressed(var11);
+                  }
+               }
+
+               throw var12;
+            }
+
+            if (var7 != null) {
+               var7.close();
+            }
+         } catch (Throwable var13) {
+            if (var6 != null) {
+               try {
+                  var6.close();
+               } catch (Throwable var10) {
+                  var13.addSuppressed(var10);
+               }
+            }
+
+            throw var13;
+         }
+
+         if (var6 != null) {
+            var6.close();
+         }
+      } catch (SQLException var14) {
+         System.out.println("Error updating employee: " + var14.getMessage());
+      }
+
+   }
+
+   public static void deleteEmployee(int var0) {
+      String var1 = "DELETE FROM employees WHERE id=?";
+
+      try {
+         Connection var2 = getConnection();
+
+         try {
+            PreparedStatement var3 = var2.prepareStatement(var1);
+
+            try {
+               var3.setInt(1, var0);
+               int var4 = var3.executeUpdate();
+               if (var4 > 0) {
+                  System.out.println("\ud83d\uddd1 Employee deleted.");
+               } else {
+                  System.out.println("❌ Employee ID not found.");
+               }
+            } catch (Throwable var8) {
+               if (var3 != null) {
+                  try {
+                     var3.close();
+                  } catch (Throwable var7) {
+                     var8.addSuppressed(var7);
+                  }
+               }
+
+               throw var8;
+            }
+
+            if (var3 != null) {
+               var3.close();
+            }
+         } catch (Throwable var9) {
+            if (var2 != null) {
+               try {
+                  var2.close();
+               } catch (Throwable var6) {
+                  var9.addSuppressed(var6);
+               }
+            }
+
+            throw var9;
+         }
+
+         if (var2 != null) {
+            var2.close();
+         }
+      } catch (SQLException var10) {
+         System.out.println("Error deleting employee: " + var10.getMessage());
+      }
+
+   }
+
+   public static void main(String[] var0) {
+      Scanner var1 = new Scanner(System.in);
+
+      while(true) {
+         System.out.println("\n=== Employee Database Menu ===");
+         System.out.println("1. Add Employee");
+         System.out.println("2. View Employees");
+         System.out.println("3. Update Employee");
+         System.out.println("4. Delete Employee");
+         System.out.println("5. Exit");
+         System.out.print("Choose option: ");
+         int var2 = var1.nextInt();
+         var1.nextLine();
+         switch (var2) {
+            case 1:
+               System.out.print("Enter name: ");
+               String var3 = var1.nextLine();
+               System.out.print("Enter email: ");
+               String var4 = var1.nextLine();
+               System.out.print("Enter salary: ");
+               double var5 = var1.nextDouble();
+               addEmployee(var3, var4, var5);
+               break;
+            case 2:
+               viewEmployees();
+               break;
+            case 3:
+               System.out.print("Enter ID to update: ");
+               int var7 = var1.nextInt();
+               var1.nextLine();
+               System.out.print("Enter new name: ");
+               String var8 = var1.nextLine();
+               System.out.print("Enter new email: ");
+               String var9 = var1.nextLine();
+               System.out.print("Enter new salary: ");
+               double var10 = var1.nextDouble();
+               updateEmployee(var7, var8, var9, var10);
+               break;
+            case 4:
+               System.out.print("Enter ID to delete: ");
+               int var12 = var1.nextInt();
+               deleteEmployee(var12);
+               break;
+            case 5:
+               System.out.println("\ud83d\udc4b Exiting App.");
+               var1.close();
+               return;
+            default:
+               System.out.println("❌ Invalid option.");
+         }
+      }
+   }
+}
